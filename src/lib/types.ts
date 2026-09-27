@@ -9,7 +9,7 @@ export type Persona = {
   /**
    * どんな相談を担当するかの短い説明（Agent Skills の description に相当）。
    * 回答者の自動選定では systemPrompt ではなくこれだけを評価モデルに送る。
-   * 「どんな悩みに向くか」と「どの立場から答えるか」を 1〜3 文で
+   * 「どんな相談に向くか」と「どの立場から答えるか」を 1〜3 文で
    */
   description: string;
 };

@@ -52,7 +52,7 @@ export function Timeline({ messages, status, onReset }: Props) {
     return (
       <Stack align="center" justify="center" h="full" minH="40vh" color="fg.muted" px="6">
         <Text textAlign="center">
-          著名人を 2〜4 名選ぶか「自動で選ぶ」をオンにして、悩みを入力すると討論が始まります。
+          著名人を 2〜4 名選ぶか「自動で選ぶ」をオンにして、相談内容を入力すると討論が始まります。
         </Text>
       </Stack>
     );
