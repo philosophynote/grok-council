@@ -182,7 +182,7 @@ async function resolvePersonas(args: {
   if (selection.mode === "manual") return selection.personas;
 
   // 「回答者を選んでいます…」を即座に出すため、空の結果を先に書く
-  // （認証情報の有無は routePersonas が確認し、なければ Gateway を呼ばずに MISSING_API_KEY を返す）
+  // （認証情報の有無は routePersonas が確認し、なければ TypeSafe を呼ばずに MISSING_API_KEY を返す）
   const routingId = `${runId}:routing`;
   writer.write({
     type: "data-routing",

@@ -56,7 +56,7 @@ export type RoutingCall = {
     state: string;
     questions: Record<string, unknown>;
   };
-  /** 成功時。evaluate の戻り値のうち JSON にできる部分 */
+  /** 成功時。TypeSafe API のレスポンス本文 */
   response?: unknown;
   /** 失敗時のエラー内容 */
   error?: string;
