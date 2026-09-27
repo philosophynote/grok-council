@@ -31,6 +31,7 @@ export function Council() {
   const [autoCount, setAutoCount] = useState<number>(councilConfig.routing.defaultCount);
   const [rounds, setRounds] = useState<number>(councilConfig.minRounds);
   const [input, setInput] = useState("");
+  const [stopped, setStopped] = useState(false);
 
   const transport = useMemo(
     () => new DefaultChatTransport<CouncilUIMessage>({ api: "/api/council" }),
@@ -44,7 +45,7 @@ export function Council() {
 
   // 最新の assistant メッセージ（= 直近の run）
   const lastAssistant = useMemo(
-    () => [...messages].reverse().find((m) => m.role === "assistant"),
+    () => messages.at(-1)?.role === "assistant" ? messages.at(-1) : undefined,
     [messages],
   );
 
@@ -85,7 +86,29 @@ export function Council() {
     clearError();
     setMessages([]);
     setInput("");
+    setStopped(false);
   }, [stop, clearError, setMessages]);
+
+  const stopCouncil = useCallback(() => {
+    // 受信停止後はサーバーの最終更新が届かないため、表示もここで確定する。
+    void stop();
+    setStopped(true);
+    setMessages((current) => current.map((message, index) => {
+      if (index !== current.length - 1 || message.role !== "assistant") return message;
+      return {
+        ...message,
+        parts: message.parts.map((part) => {
+          if (part.type === "data-speech" && !part.data.done) {
+            return { ...part, data: { ...part.data, done: true, aborted: true } };
+          }
+          if (part.type === "data-routing" && !part.data.done) {
+            return { ...part, data: { ...part.data, done: true } };
+          }
+          return part;
+        }),
+      };
+    }));
+  }, [stop, setMessages]);
 
   const selectionValid =
     mode === "auto" ||
@@ -99,8 +122,10 @@ export function Council() {
     }
   } else if (requestErrorMessage || fatalError) {
     blockedReason = "エラーで討論が止まりました。「最初からやり直す」を押してください";
-  } else if (!lastRunCompleted) {
-    blockedReason = "司会の総括まで完了すると追加質問ができます";
+  } else if (stopped || !lastRunCompleted) {
+    blockedReason = busy
+      ? "司会の総括まで完了すると追加質問ができます"
+      : "総括まで完了していません。「最初からやり直す」を押してください";
   } else if (mode === "auto" && routedIds.length === 0) {
     blockedReason = "自動選定の結果が取得できませんでした。「最初からやり直す」を押してください";
   }
@@ -176,7 +201,7 @@ export function Council() {
               value={input}
               onChange={setInput}
               onSubmit={submit}
-              onStop={stop}
+              onStop={stopCouncil}
               busy={busy}
               blockedReason={blockedReason}
               maxChars={councilConfig.limits.maxUserTextChars}
@@ -196,6 +221,14 @@ export function Council() {
               <ErrorNotice
                 title="リクエストを受け付けられませんでした"
                 message={requestErrorMessage}
+                fatal
+                onReset={reset}
+              />
+            )}
+            {started && !busy && !requestErrorMessage && !fatalError && blockedReason && (
+              <ErrorNotice
+                title={stopped ? "討論を停止しました" : "討論を完了できませんでした"}
+                message={blockedReason}
                 fatal
                 onReset={reset}
               />
