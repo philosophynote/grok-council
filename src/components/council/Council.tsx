@@ -184,7 +184,7 @@ export function Council() {
               placeholder={
                 started
                   ? "討論を聞いて気になったことを追加で質問できます"
-                  : "いま抱えている悩みを書いてください"
+                  : "相談したい内容を書いてください"
               }
             />
           </Stack>
