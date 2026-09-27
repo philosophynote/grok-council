@@ -5,13 +5,15 @@
 - 変更する箇所に応じて、画面は `src/components/council/`、API は `src/app/api/council/route.ts`、討論の処理は `src/lib/`、人物や上限の設定は `src/config/` を確認する。
 - 変更後は影響範囲に応じて `npm run lint` と `npm run build` で確認し、実行できなかった確認や残る問題を報告する。
 - 新しい依存関係を追加する前に、既存の依存関係で実現できるか確認する。
+- この Next.js には破壊的な変更があり、API、慣習、ファイル構成が学習済みの知識と異なる可能性がある。コードを書く前に、対象に関係する `node_modules/next/dist/docs/` 内のガイドを読み、非推奨の注意書きにも従う（下の英語ブロックと同じ内容）。
+- 下の `nextjs-agent-rules` ブロックは `next dev` が管理する英語の定型文なので、編集・翻訳しない。AI エージェントの環境で `next dev` を起動すると、定型文と一致しないブロックは英語で上書きされる（`node_modules/next/dist/server/lib/app-info-log.js` の `ensureAgentRulesForDev`）。
 
 <!-- BEGIN:nextjs-agent-rules -->
 
-# この Next.js は既知の仕様を前提にしない
+# This is NOT the Next.js you know
 
-このバージョンには破壊的な変更があり、API、慣習、ファイル構成が学習済みの知識と異なる可能性がある。コードを書く前に、対象に関係する `node_modules/next/dist/docs/` 内のガイドを読む。このパスはこのファイルのディレクトリを基準に解決する。モノレポではリポジトリのルートから `next` パッケージが見えない場合がある。非推奨の注意書きにも従う。
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
 
-このブロックは `next dev` が生成・再追加する。生成処理は `node_modules/next/dist/server/lib/generate-agent-files.js` で確認できる。現在の生成処理は英語の定型文でこのブロックを上書きするため、`next dev` の実行後は日本語訳が維持されているか確認する。
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
