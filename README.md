@@ -5,6 +5,16 @@
 
 Next.js 16 / React 19 / AI SDK 7 / Chakra UI v3 を使用しています。
 
+## スクリーンショット
+
+著名人を手動で選んだ場合の回答画面です。
+
+![手動で選んだ4名が相談に回答している画面](docs/images/manual-selection.png)
+
+「自動で選ぶ」を使うと、評価モデルが全員の適性を採点し、上位の人物が回答します。
+
+![自動選定の採点結果と、選ばれた3名の回答が並ぶ画面](docs/images/auto-selection.png)
+
 ## セットアップ
 
 Node.js 20.9 以上と npm、[xAIのAPIキー](https://console.x.ai/)が必要です。
