@@ -21,13 +21,19 @@ npm install
 
 ### 1. API キーを設定する
 
-[xAI のコンソール](https://console.x.ai/) で API キーを発行し、プロジェクト直下に `.env.local` を作成して次のように書きます。
+プロジェクト直下で `.env.example` をコピーして `.env.local` を作成してください。
+
+```bash
+cp .env.example .env.local
+```
+
+[xAI のコンソール](https://console.x.ai/) で API キーを発行し、`.env.local` の `XAI_API_KEY` に設定します。
 
 ```
 XAI_API_KEY=xai-xxxxxxxxxxxxxxxx
 ```
 
-`.env*` は `.gitignore` に含まれているため、コミットされません。
+`.env.local` などの `.env*` ファイルは Git の管理対象外です。設定例の `.env.example` だけは管理対象に含めています。
 キーが未設定のまま討論を始めると、xAI を呼び出す前に `MISSING_API_KEY` エラーが画面に表示されます。
 `.env.local` を変更したら開発サーバーを再起動してください。
 
