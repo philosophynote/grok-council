@@ -55,12 +55,12 @@ export const councilConfig = {
 
   /**
    * 相談内容に応じた回答者の自動選定。
-   * Vercel AI Gateway の評価モデル（既定 typesafe-ai/jev）に全著名人の適性を採点させ、上位から選ぶ。
-   * 環境変数 AI_GATEWAY_API_KEY が必要
+   * TypeSafe AI の評価モデル（既定 jev-latest）に全著名人の適性を採点させ、上位から選ぶ。
+   * 環境変数 TYPESAFE_API_KEY が必要
    */
   routing: {
-    /** 評価モデル ID（Gateway 上の ID） */
-    model: process.env.ROUTING_MODEL ?? "typesafe-ai/jev",
+    /** 評価モデル ID（TypeSafe API の model に渡す ID） */
+    model: process.env.ROUTING_MODEL ?? "jev-latest",
     /** 自動選定で選ぶ人数の既定値 */
     defaultCount: 3,
     /** 採点 1 回のタイムアウト */

@@ -5,6 +5,16 @@
 
 Next.js 16 / React 19 / AI SDK 7 / Chakra UI v3 を使用しています。
 
+## スクリーンショット
+
+著名人を手動で選んだ場合の回答画面です。
+
+![手動で選んだ4名が相談に回答している画面](docs/images/manual-selection.png)
+
+「自動で選ぶ」を使うと、評価モデルが全員の適性を採点し、上位の人物が回答します。
+
+![自動選定の採点結果と、選ばれた3名の回答が並ぶ画面](docs/images/auto-selection.png)
+
 ## セットアップ
 
 Node.js 20.9 以上と npm、[xAIのAPIキー](https://console.x.ai/)が必要です。
@@ -29,7 +39,7 @@ npm run dev
 2. 相談内容を入力して送信すると、回答 → 討論 → 総括の順に進みます。
 3. 総括後は追加質問できます。参加者とラウンド数は初回の設定を引き継ぎます。
 
-「自動で選ぶ」を使う場合は、追加で `AI_GATEWAY_API_KEY` を設定してください。
+「自動で選ぶ」を使う場合は、追加で [TypeSafe AI](https://console.typesafe.ai/keys) の API キーを `TYPESAFE_API_KEY` に設定してください。
 [設定手順と詳しい仕様](docs/configuration.md)を参照できます。手動選択ではこのキーは不要です。
 
 途中で停止した場合や総括に失敗した場合は、「最初からやり直す」で新しい相談を始めてください。

@@ -4,18 +4,16 @@
 
 ## 回答者の自動選定
 
-「相談内容に合わせて自動で選ぶ」をオンにすると、送信時に [Vercel AI Gateway](https://vercel.com/docs/ai-gateway) の評価モデル `typesafe-ai/jev` に全著名人の適性を採点させ、上位 N 名を参加者にします。
-ローカルで使う場合は Gateway の API キーを設定します。Vercel CLI が未導入なら `npm install -g vercel` で導入し、`vercel login` でログインしてから、次のコマンドで発行してください。発行したキーを `.env.local` に追記します。
+「相談内容に合わせて自動で選ぶ」をオンにすると、送信時に [TypeSafe AI](https://docs.typesafe.ai/introduction) の評価モデル Jev（`jev-latest`）に全著名人の適性を採点させ、上位 N 名を参加者にします。
+TypeSafe の [API](https://docs.typesafe.ai/api)（`POST https://api.typesafe.ai/v1/systemone`）を直接呼び出します。
 
-```bash
-vercel ai-gateway api-keys create --name grok-council
-```
+[TypeSafe のコンソール](https://console.typesafe.ai/keys)で API キーを発行し、`.env.local` に追記してください。
 
 ```
-AI_GATEWAY_API_KEY=vck_xxxxxxxxxxxxxxxx
+TYPESAFE_API_KEY=xxxxxxxxxxxxxxxx
 ```
 
-`AI_GATEWAY_API_KEY` または `VERCEL_OIDC_TOKEN` で認証します。どちらも未設定で自動選定をオンにして送信すると、Gateway を呼ぶ前に `MISSING_API_KEY` エラーが表示されます。
+`TYPESAFE_API_KEY` が未設定のまま自動選定をオンにして送信すると、TypeSafe を呼ぶ前に `MISSING_API_KEY` エラーが表示されます。
 手動で著名人を選ぶ場合、このキーは不要です。
 
 ## 任意の環境変数
@@ -24,7 +22,7 @@ AI_GATEWAY_API_KEY=vck_xxxxxxxxxxxxxxxx
 |---|---|---|
 | `GROK_MODEL` | `grok-4.3` | 使用するモデル ID |
 | `GROK_REASONING_EFFORT` | `none` | 思考トークンの量。`none` / `low` / `medium` / `high` / `xhigh`。1 回の相談で最大 17 発言を生成するため、既定では思考トークンを使いません |
-| `ROUTING_MODEL` | `typesafe-ai/jev` | 自動選定に使う Gateway 上の評価モデル ID |
+| `ROUTING_MODEL` | `jev-latest` | 自動選定に使う TypeSafe の評価モデル ID。バージョンを固定したい場合は `jev-1.13.0` のように指定します |
 | `ROUTING_DEBUG` | 開発モードで `1` | `1` で評価モデルへの request / response を開発サーバーのコンソールと画面（選定結果カードの「デバッグ」折りたたみ）に出す。`0` で開発モードでも出さない |
 
 上限値（人数・ラウンド数・出力トークン・タイムアウト・自動選定の既定人数など）は [src/config/council.ts](../src/config/council.ts) で変更できます。
@@ -35,15 +33,17 @@ AI_GATEWAY_API_KEY=vck_xxxxxxxxxxxxxxxx
 
 確信度は評価モデルが返す 0〜1 の値で、画面では百分率で表示します。レスポンスに含まれない場合は「—」になります。
 
+TypeSafe の料金は入力トークン単位の従量課金です。1 回の自動選定で、相談内容と全候補分の質問を 1 リクエストにまとめて送ります。料金とレート制限は [Models](https://docs.typesafe.ai/models) を参照してください。
+
 ## 呼び出し回数
 
-発言生成の回数は `人数 × (1 + ラウンド数) + 1` です。最大構成の 4 名・3 ラウンドでは 17 回になります。自動選定の呼び出しとSDKのリトライは別途発生します。
+発言生成の回数は `人数 × (1 + ラウンド数) + 1` です。最大構成の 4 名・3 ラウンドでは 17 回になります。自動選定の呼び出し（1 回）とリトライは別途発生します。
 
 ## 失敗時の挙動
 
-- 1 ターンが失敗（モデルエラー、タイムアウト）しても討論は止まらず、そのターンだけエラー表示して次に進みます。失敗したターンをアプリが再実行することはありません。ただし、SDKは再試行可能な通信エラーに対して、発言生成では最大 2 回、自動選定では最大 1 回リトライします
+- 1 ターンが失敗（モデルエラー、タイムアウト）しても討論は止まらず、そのターンだけエラー表示して次に進みます。失敗したターンをアプリが再実行することはありません。ただし、再試行可能なエラーに対しては、発言生成では SDK が最大 2 回、自動選定ではアプリが最大 1 回リトライします（自動選定では通信エラー、`429`、`529`、`5xx` が対象）
 - API キー未設定、タイムアウトが 2 ターン連続、利用者による停止、自動選定の失敗で討論を打ち切ります。通信切断やサーバー側の実行制限によって中断する場合もあります
-- 自動選定の失敗時は討論を始めません。認証情報の未設定は `MISSING_API_KEY`、時間切れは `TIMEOUT`、その他の失敗は `ROUTING_ERROR` です。「最初からやり直す」を押し、手動選択に切り替えるか、時間をおいて再送してください
+- 自動選定の失敗時は討論を始めません。`TYPESAFE_API_KEY` の未設定は `MISSING_API_KEY`、時間切れは `TIMEOUT`、その他の失敗（認証エラー、モデル ID の誤り、TypeSafe 側の混雑など）は `ROUTING_ERROR` です。「最初からやり直す」を押し、手動選択に切り替えるか、時間をおいて再送してください
 - 「停止」を押すと、進行中の発言はそこまでの本文を残して「中断」表示になり、次の呼び出しは始まりません
 - 停止した場合や総括が失敗・空の応答で終わった場合、追加質問はできません。「最初からやり直す」で新しい相談を始めてください
 
@@ -73,5 +73,5 @@ AI_GATEWAY_API_KEY=vck_xxxxxxxxxxxxxxxx
 
 ### レート制限・同時実行
 
-実装していません。複数人が同時に使うと xAI 側のレート制限に当たる可能性があります。
+実装していません。複数人が同時に使うと xAI や TypeSafe のレート制限に当たる可能性があります。
 
